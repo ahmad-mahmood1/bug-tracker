@@ -6,11 +6,7 @@ function jwtGenerator(user_id) {
     user: user_id,
   };
 
-  return jwt.sign(
-    payload,
-    process.env.JWT_SECRET
-    // { expiresIn: "1hr" }
-  );
+  return jwt.sign(payload, process.env.JWT_SECRET);
 }
 
 module.exports = jwtGenerator;
