@@ -1,0 +1,85 @@
+-- Database: bugtracker
+
+CREATE TABLE Roles (
+	role_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY ,
+	role_type VARCHAR
+);
+
+CREATE TABLE Statuses (
+	status_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	status_name VARCHAR UNIQUE not null
+);
+
+
+CREATE TABLE Priorities (
+	priority_id  INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	priority_name VARCHAR UNIQUE not null
+);
+
+
+CREATE TABLE "Types" (
+	type_id  INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	type_name VARCHAR UNIQUE not null
+);
+
+CREATE TABLE Users (
+	user_id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	first_name VARCHAR NOT NULL,
+    last_name VARCHAR  NOT NULL,
+	email VARCHAR  NOT NULL,
+	"password" VARCHAR  NOT NULL,
+    phone VARCHAR UNIQUE,
+	role_id int,
+	CONSTRAINT FK_USER_ROLE FOREIGN KEY (role_id) REFERENCES Roles(role_id)
+);
+
+CREATE TABLE Teams (
+	team_id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	"name" VARCHAR NOT NULL
+);
+
+CREATE TABLE User_Teams(
+	user_team_id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	"user_id" int,
+	CONSTRAINT FK_USER_TEAM  FOREIGN KEY ("user_id") REFERENCES Users("user_id"),
+	team_id int,
+	CONSTRAINT FK_TEAM_USER  FOREIGN KEY (team_id) REFERENCES Teams(team_id)
+);
+
+CREATE TABLE Projects (
+	project_id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	project_team_id int,
+	CONSTRAINT FK_PROJECT_TEAM  FOREIGN KEY (project_team_id) REFERENCES User_Teams(user_team_id)
+);
+
+CREATE TABLE Tickets (
+	ticket_id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	"name" VARCHAR  NOT NULL,
+	author VARCHAR  NOT NULL,
+	status_id int,
+	CONSTRAINT FK_TICKET_STATUS  FOREIGN KEY (status_id) REFERENCES Statuses(status_id),
+	priority_id int,
+	CONSTRAINT FK_TICKET_PRIORITY  FOREIGN KEY (priority_id) REFERENCES Priorities(priority_id),
+	type_id int,
+	CONSTRAINT FK_TICKET_TYPE  FOREIGN KEY (type_id) REFERENCES "Types"(type_id),
+	description VARCHAR NULL,
+	created_at timestamp not null DEFAULT NOW(),
+	created_by int,
+	CONSTRAINT FK_CREATED_BY_USER  FOREIGN KEY (created_by) REFERENCES Users(user_id),
+	assigned_to int,
+	CONSTRAINT FK_ASSIGNED_TO_USER  FOREIGN KEY (assigned_to) REFERENCES Users(user_id),
+	project_id int,
+	CONSTRAINT FK_TICKET_PROJECT  FOREIGN KEY (project_id) REFERENCES Projects(project_id)
+);
+
+CREATE TABLE "Comments" (
+	comment_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	"text" VARCHAR not null,
+	user_id int,
+	CONSTRAINT FK_COMMENT_USER FOREIGN KEY (user_id) REFERENCES Users(user_id),
+	ticket_id int,
+	CONSTRAINT FK_COMMENT_TICKET FOREIGN KEY (ticket_id) REFERENCES Tickets(ticket_id),
+	created_at timestamp not null default NOW()
+);
+
+
